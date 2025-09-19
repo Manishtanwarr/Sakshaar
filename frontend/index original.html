@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saakshar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Saakshar</h1>
+            <p class="subtitle">Complete RIASEC Personality Assessment & Career Recommendations</p>
+            <div class="alert alert-success" style="margin-top: 1rem;">
+                <strong>✅ Offline Mode:</strong> Assessment works without internet connection using advanced AI algorithms
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Start Section -->
+            <div id="start-section" class="section active">
+                <h2>🧠 Scientific Career Assessment</h2>
+
+                <div class="alert alert-info">
+                    <strong>About RIASEC Assessment:</strong> This scientifically-validated career assessment is based on John Holland's theory of career choice. It measures your personality across 6 dimensions to determine your ideal career path.
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0;">
+                    <div style="text-align: center; padding: 1rem; background: #f3f4f6; border-radius: 8px;">
+                        <div style="font-size: 2rem; color: #2563eb;">30</div>
+                        <div>Scientific Questions</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: #f3f4f6; border-radius: 8px;">
+                        <div style="font-size: 2rem; color: #10b981;">6</div>
+                        <div>Personality Types</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: #f3f4f6; border-radius: 8px;">
+                        <div style="font-size: 2rem; color: #f59e0b;">AI</div>
+                        <div>Powered Analysis</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="student-name">Your Full Name *</label>
+                    <input type="text" id="student-name" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="student-age">Age</label>
+                    <input type="number" id="student-age" placeholder="Your age" min="15" max="35">
+                </div>
+
+                <div class="form-group">
+                    <label for="academic-level">Academic Level</label>
+                    <select id="academic-level">
+                        <option value="10-current">Class 10 (Current)</option>
+                        <option value="10-cuompleted">Class 10 (completed)</option>
+                        <option value="12-current">Class 12 (Current)</option>
+                        <option value="12-completed">Class 12 (Completed)</option>
+                        <option value="gap-year">Gap Year</option>
+                        <option value="graduate">Graduate</option>
+                    </select>
+                </div>
+
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="btn" onclick="startAssessment()">🚀 Begin Career Assessment</button>
+                </div>
+            </div>
+
+            <!-- Assessment Section -->
+            <div id="assessment-section" class="section">
+                <h2>RIASEC Personality Assessment</h2>
+
+                <div class="alert alert-info">
+                    <strong>Instructions:</strong> Rate each statement from 1 (Strongly Disagree) to 5 (Strongly Agree) based on how well it describes you. Be honest - there are no right or wrong answers.
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress" id="assessment-progress" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">Question 0 of 30</div>
+                </div>
+
+                <div id="questions-container"></div>
+
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="btn" onclick="processResults()" id="submit-btn" disabled>📊 Calculate My Career Profile</button>
+                </div>
+            </div>
+
+            <!-- Processing Section -->
+            <div id="processing-section" class="section">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <h3>🤖 AI Processing Your Responses...</h3>
+                    <p>Analyzing personality patterns and calculating career matches...</p>
+                    <div style="margin-top: 2rem;">
+                        <div id="processing-status">Calculating RIASEC scores...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="section">
+                <div id="results-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let assessmentData = {};
+        let studentInfo = {};
+
+        // RIASEC questions (30 questions, 5 per type)
+        const riasecQuestions = [
+            // Realistic (R) - 5 questions
+            {id: 'R1', type: 'R', question: 'I enjoy working with tools and machines'},
+            {id: 'R2', type: 'R', question: 'I prefer hands-on, practical work'},
+            {id: 'R3', type: 'R', question: 'I like working outdoors'},
+            {id: 'R4', type: 'R', question: 'I enjoy building or fixing things'},
+            {id: 'R5', type: 'R', question: 'I prefer working with my hands'},
+
+            // Investigative (I) - 5 questions
+            {id: 'I1', type: 'I', question: 'I like to analyze data and solve complex problems'},
+            {id: 'I2', type: 'I', question: 'I enjoy scientific experiments and research'},
+            {id: 'I3', type: 'I', question: 'I enjoy reading scientific journals'},
+            {id: 'I4', type: 'I', question: 'I like theoretical discussions'},
+            {id: 'I5', type: 'I', question: 'I enjoy conducting research'},
+
+            // Artistic (A) - 5 questions
+            {id: 'A1', type: 'A', question: 'I enjoy creative activities like art or writing'},
+            {id: 'A2', type: 'A', question: 'I like to express myself creatively'},
+            {id: 'A3', type: 'A', question: 'I like attending art exhibitions'},
+            {id: 'A4', type: 'A', question: 'I enjoy music and performing arts'},
+            {id: 'A5', type: 'A', question: 'I like designing things'},
+
+            // Social (S) - 5 questions  
+            {id: 'S1', type: 'S', question: 'I like helping others solve their problems'},
+            {id: 'S2', type: 'S', question: 'I enjoy teaching and training people'},
+            {id: 'S3', type: 'S', question: 'I enjoy volunteering for good causes'},
+            {id: 'S4', type: 'S', question: 'I like counseling people with problems'},
+            {id: 'S5', type: 'S', question: 'I enjoy working with children'},
+
+            // Enterprising (E) - 5 questions
+            {id: 'E1', type: 'E', question: 'I enjoy leading and managing others'},
+            {id: 'E2', type: 'E', question: 'I like to persuade and influence others'},
+            {id: 'E3', type: 'E', question: 'I like starting new businesses or projects'},
+            {id: 'E4', type: 'E', question: 'I enjoy making sales presentations'},
+            {id: 'E5', type: 'E', question: 'I like managing people and projects'},
+
+            // Conventional (C) - 5 questions
+            {id: 'C1', type: 'C', question: 'I like organizing data and keeping detailed records'},
+            {id: 'C2', type: 'C', question: 'I prefer structured, well-defined tasks'},
+            {id: 'C3', type: 'C', question: 'I prefer following established procedures'},
+            {id: 'C4', type: 'C', question: 'I like keeping accurate records'},
+            {id: 'C5', type: 'C', question: 'I prefer routine, predictable work'}
+        ];
+
+        function startAssessment() {
+            const name = document.getElementById('student-name').value.trim();
+            const age = document.getElementById('student-age').value;
+            const level = document.getElementById('academic-level').value;
+
+            if (!name) {
+                alert('Please enter your name to continue');
+                document.getElementById('student-name').focus();
+                return;
+            }
+
+            // Store student info
+            studentInfo = {
+                name: name,
+                age: age || 'Not specified',
+                academic_level: level
+            };
+
+            // Show assessment section
+            showSection('assessment-section');
+            loadQuestions();
+        }
+
+        function loadQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            riasecQuestions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.innerHTML = `
+                    <div class="question-text">
+                        <strong>Question ${index + 1} of 30:</strong> ${question.question}
+                    </div>
+                    <div class="rating-group">
+                        ${[1,2,3,4,5].map(rating => `
+                            <div class="rating-option" onclick="selectRating('${question.id}', ${rating}, this)">
+                                <div style="font-size: 1.2rem; font-weight: bold;">${rating}</div>
+                                <small style="margin-top: 0.25rem; display: block;">${getRatingLabel(rating)}</small>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function getRatingLabel(rating) {
+            const labels = {
+                1: 'Strongly Disagree',
+                2: 'Disagree', 
+                3: 'Neutral',
+                4: 'Agree',
+                5: 'Strongly Agree'
+            };
+            return labels[rating];
+        }
+
+        function selectRating(questionId, rating, element) {
+            // Remove previous selections for this question
+            element.parentElement.querySelectorAll('.rating-option').forEach(opt => 
+                opt.classList.remove('selected'));
+            element.classList.add('selected');
+
+            // Store response
+            assessmentData[questionId] = rating;
+
+            // Update progress
+            const answeredCount = Object.keys(assessmentData).length;
+            const progress = (answeredCount / riasecQuestions.length) * 100;
+            document.getElementById('assessment-progress').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = `Question ${answeredCount} of ${riasecQuestions.length}`;
+
+            // Enable submit button when all questions answered
+            const submitBtn = document.getElementById('submit-btn');
+            if (answeredCount >= riasecQuestions.length) {
+                submitBtn.disabled = false;
+                submitBtn.style.background = '#10b981';
+                submitBtn.innerHTML = '✅ Calculate My Career Profile';
+            }
+
+            // Auto-scroll to next question
+            setTimeout(() => {
+                const nextQuestion = element.closest('.question-container').nextElementSibling;
+                if (nextQuestion) {
+                    nextQuestion.scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+            }, 300);
+        }
+
+        async function processResults() {
+            try {
+                showSection('processing-section');
+
+                // Simulate AI processing with status updates
+                await updateProcessingStatus('Calculating RIASEC personality scores...', 1000);
+                const riasecScores = calculateRiasecScores();
+
+                await updateProcessingStatus('Determining your Holland Code...', 800);
+                const hollandCode = generateHollandCode(riasecScores);
+
+                await updateProcessingStatus('Analyzing personality patterns...', 800);
+                const personality = analyzePersonality(hollandCode, riasecScores);
+
+                await updateProcessingStatus('Matching courses to your profile...', 1000);
+                const courses = generateCourseRecommendations(riasecScores, hollandCode);
+
+                await updateProcessingStatus('Finding suitable colleges...', 800);
+                const colleges = generateCollegeRecommendations(courses);
+
+                await updateProcessingStatus('Generating personalized insights...', 800);
+                const insights = generateInsights(personality, hollandCode);
+
+                await updateProcessingStatus('Finalizing your career profile...', 500);
+
+                // Display comprehensive results
+                const results = {
+                    personality: personality,
+                    riasec_scores: riasecScores,
+                    holland_code: hollandCode,
+                    courses: courses,
+                    colleges: colleges,
+                    insights: insights
+                };
+
+                displayResults(results);
+                showSection('results-section');
+
+            } catch (error) {
+                console.error('Processing error:', error);
+                alert('Assessment processing completed with some issues. Showing results...');
+                showSection('results-section');
+            }
+        }
+
+        async function updateProcessingStatus(message, delay) {
+            document.getElementById('processing-status').textContent = message;
+            return new Promise(resolve => setTimeout(resolve, delay));
+        }
+
+        function calculateRiasecScores() {
+            const scores = {R: 0, I: 0, A: 0, S: 0, E: 0, C: 0};
+            const counts = {R: 0, I: 0, A: 0, S: 0, E: 0, C: 0};
+
+            // Calculate raw scores
+            for (const [questionId, rating] of Object.entries(assessmentData)) {
+                const type = questionId[0];
+                scores[type] += rating;
+                counts[type]++;
+            }
+
+            // Convert to percentages (0-100)
+            for (const type in scores) {
+                if (counts[type] > 0) {
+                    scores[type] = Math.round((scores[type] / (counts[type] * 5)) * 100);
+                }
+            }
+
+            return scores;
+        }
+
+        function generateHollandCode(scores) {
+            const sortedTypes = Object.entries(scores).sort(([,a], [,b]) => b - a);
+            return sortedTypes.slice(0, 3).map(([type]) => type).join('');
+        }
+
+        function analyzePersonality(hollandCode, scores) {
+            const primaryType = hollandCode[0];
+
+            const typeDescriptions = {
+                'R': {
+                    name: 'Realistic (The Doer)',
+                    description: 'You prefer practical, hands-on work and enjoy building, fixing, or working with tools and machines. You like concrete results and working outdoors.',
+                    traits: ['Practical', 'Hands-on', 'Problem-solver', 'Independent', 'Realistic'],
+                    work_environment: 'Technical, structured environments with tangible outcomes'
+                },
+                'I': {
+                    name: 'Investigative (The Thinker)',
+                    description: 'You enjoy analyzing problems, conducting research, and working with ideas. You prefer to think through problems and work independently.',
+                    traits: ['Analytical', 'Research-oriented', 'Logical', 'Independent', 'Intellectual'],
+                    work_environment: 'Research-oriented, analytical environments with complex problems'
+                },
+                'A': {
+                    name: 'Artistic (The Creator)',
+                    description: 'You value creativity, self-expression, and artistic activities. You enjoy working in unstructured environments and expressing your creativity.',
+                    traits: ['Creative', 'Expressive', 'Original', 'Intuitive', 'Independent'],
+                    work_environment: 'Creative, flexible environments with artistic expression'
+                },
+                'S': {
+                    name: 'Social (The Helper)',
+                    description: 'You enjoy helping others and working in team-oriented environments. You prefer to solve problems through discussion and cooperation.',
+                    traits: ['Helpful', 'Cooperative', 'Understanding', 'Teaching-oriented', 'Social'],
+                    work_environment: 'Collaborative, people-focused environments helping others'
+                },
+                'E': {
+                    name: 'Enterprising (The Persuader)',
+                    description: 'You like leading others, taking risks, and persuading people. You enjoy competitive environments and being in positions of authority.',
+                    traits: ['Leadership-oriented', 'Persuasive', 'Competitive', 'Ambitious', 'Risk-taking'],
+                    work_environment: 'Competitive, leadership environments with business opportunities'
+                },
+                'C': {
+                    name: 'Conventional (The Organizer)',
+                    description: 'You prefer organized, detail-oriented work with clear procedures. You like working with data, numbers, and following established systems.',
+                    traits: ['Organized', 'Detail-oriented', 'Systematic', 'Reliable', 'Efficient'],
+                    work_environment: 'Structured, organized environments with clear procedures'
+                }
+            };
+
+            return typeDescriptions[primaryType] || typeDescriptions['R'];
+        }
+
+        function generateCourseRecommendations(scores, hollandCode) {
+            const courseDatabase = {
+                'R': [
+                    {course: 'B.Tech', match: 90, duration: '4 years', careers: 'Engineer, Developer, Technical Specialist', fees: '₹2-8 Lakh/year'},
+                    {course: 'B.Sc (Physics/Chemistry)', match: 80, duration: '3 years', careers: 'Scientist, Researcher, Lab Technician', fees: '₹6,000-60,000/year'}
+                ],
+                'I': [
+                    {course: 'MBBS', match: 95, duration: '5.5 years', careers: 'Doctor, Medical Researcher, Specialist', fees: '₹1,400-10 Lakh/year'},
+                    {course: 'B.Tech', match: 85, duration: '4 years', careers: 'Software Engineer, Research Scientist', fees: '₹2-8 Lakh/year'},
+                    {course: 'B.Sc (Research)', match: 80, duration: '3 years', careers: 'Research Scientist, Data Analyst', fees: '₹6,000-60,000/year'}
+                ],
+                'A': [
+                    {course: 'BA (Fine Arts)', match: 90, duration: '3 years', careers: 'Artist, Designer, Writer, Musician', fees: '₹5,000-40,000/year'},
+                    {course: 'BA (Literature)', match: 85, duration: '3 years', careers: 'Writer, Journalist, Content Creator', fees: '₹5,000-40,000/year'}
+                ],
+                'S': [
+                    {course: 'MBBS', match: 88, duration: '5.5 years', careers: 'Doctor, Healthcare Provider', fees: '₹1,400-10 Lakh/year'},
+                    {course: 'BA (Psychology)', match: 85, duration: '3 years', careers: 'Counselor, Social Worker, Therapist', fees: '₹5,000-40,000/year'},
+                    {course: 'B.Ed', match: 80, duration: '2 years', careers: 'Teacher, Education Administrator', fees: '₹10,000-50,000/year'}
+                ],
+                'E': [
+                    {course: 'BBA', match: 90, duration: '3 years', careers: 'Business Manager, Entrepreneur, Executive', fees: '₹20,000-3 Lakh/year'},
+                    {course: 'B.Com', match: 85, duration: '3 years', careers: 'Business Analyst, Marketing Manager', fees: '₹5,000-50,000/year'}
+                ],
+                'C': [
+                    {course: 'B.Com', match: 90, duration: '3 years', careers: 'Accountant, Financial Analyst, Auditor', fees: '₹5,000-50,000/year'},
+                    {course: 'BBA', match: 80, duration: '3 years', careers: 'Administrative Manager, Operations Manager', fees: '₹20,000-3 Lakh/year'}
+                ]
+            };
+
+            const recommendations = [];
+            const topTypes = hollandCode.split('').slice(0, 2); // Top 2 types
+
+            topTypes.forEach(type => {
+                if (courseDatabase[type]) {
+                    courseDatabase[type].forEach(course => {
+                        const adjustedMatch = Math.round(course.match * (scores[type] / 100));
+                        if (!recommendations.find(r => r.course === course.course)) {
+                            recommendations.push({
+                                ...course,
+                                match: Math.max(adjustedMatch, 60), // Minimum 60% match
+                                reason: `Excellent fit for ${analyzePersonality(type, scores).name} personality`
+                            });
+                        }
+                    });
+                }
+            });
+
+            return recommendations.sort((a, b) => b.match - a.match).slice(0, 5);
+        }
+
+        function generateCollegeRecommendations(courses) {
+            const collegeDatabase = {
+                'MBBS': [
+                    {name: 'Government Medical College, Jammu', type: 'Government', fee: '₹1,400/year', admission: 'NEET-UG'},
+                    {name: 'Government Medical College, Srinagar', type: 'Government', fee: '₹1,400/year', admission: 'NEET-UG'},
+                    {name: 'Government Medical College, Anantnag', type: 'Government', fee: '₹1,400/year', admission: 'NEET-UG'}
+                ],
+                'B.Tech': [
+                    {name: 'National Institute of Technology, Srinagar', type: 'Government', fee: '₹5.5 Lakh/year', admission: 'JEE Main'},
+                    {name: 'Islamic University of Science & Technology', type: 'Private', fee: '₹4 Lakh/year', admission: 'JEE Main/IUST'},
+                    {name: 'Government College of Engineering & Technology', type: 'Government', fee: '₹75,000/year', admission: 'JEE Main'}
+                ],
+                'BA': [
+                    {name: 'Government Gandhi Memorial Science College', type: 'Government', fee: '₹5,118/year', admission: 'Merit-based'},
+                    {name: 'S.P. College, Srinagar', type: 'Government', fee: '₹6,000/year', admission: 'Merit-based'},
+                    {name: 'Government Degree College, Baramulla', type: 'Government', fee: '₹5,500/year', admission: 'Merit-based'}
+                ],
+                'B.Com': [
+                    {name: 'University of Kashmir', type: 'Government', fee: '₹8,000/year', admission: 'Merit-based'},
+                    {name: 'Government Gandhi Memorial Science College', type: 'Government', fee: '₹6,500/year', admission: 'Merit-based'},
+                    {name: 'Government Degree College, Udhampur', type: 'Government', fee: '₹6,000/year', admission: 'Merit-based'}
+                ],
+                'BBA': [
+                    {name: 'Central University of Jammu', type: 'Government', fee: '₹24,430/year', admission: 'CUET-UG'},
+                    {name: 'University of Kashmir', type: 'Government', fee: '₹25,000/year', admission: 'University Entrance'},
+                    {name: 'Islamic University of Science & Technology', type: 'Private', fee: '₹1.8 Lakh/year', admission: 'IUST Entrance'}
+                ],
+                'B.Sc': [
+                    {name: 'Government Gandhi Memorial Science College', type: 'Government', fee: '₹6,500/year', admission: 'Merit-based'},
+                    {name: 'S.P. College, Srinagar', type: 'Government', fee: '₹7,000/year', admission: 'Merit-based'},
+                    {name: 'Cluster University, Srinagar', type: 'Government', fee: '₹8,000/year', admission: 'University Entrance'}
+                ]
+            };
+
+            const recommendations = [];
+            courses.slice(0, 3).forEach(course => {
+                const colleges = collegeDatabase[course.course] || [];
+                colleges.forEach(college => {
+                    recommendations.push({
+                        ...college,
+                        course: course.course,
+                        match_reason: `Recommended for ${course.course} with ${course.match}% personality match`
+                    });
+                });
+            });
+
+            return recommendations.slice(0, 6);
+        }
+
+        function generateInsights(personality, hollandCode) {
+            const insights = [];
+
+            insights.push(`Your Holland Code "${hollandCode}" represents a unique combination of personality types that define your career interests.`);
+            insights.push(`As a ${personality.name}, you thrive in ${personality.work_environment}.`);
+            insights.push(`Your key strengths include being ${personality.traits.slice(0, 3).join(', ')}.`);
+
+            const careerAdvice = {
+                'R': 'Consider hands-on careers in engineering, technology, construction, or skilled trades.',
+                'I': 'You excel in research, analysis, healthcare, and scientific careers that involve problem-solving.',
+                'A': 'Creative fields like design, writing, media, or performing arts would be highly fulfilling.',
+                'S': 'Helping professions like healthcare, education, counseling, or social work align with your values.',
+                'E': 'Leadership roles in business, sales, management, or entrepreneurship match your ambitions.',
+                'C': 'Organized careers in finance, administration, accounting, or data management suit your style.'
+            };
+
+            insights.push(careerAdvice[hollandCode[0]] || 'Explore careers that combine multiple aspects of your personality.');
+            insights.push('Consider conducting informational interviews with professionals in your recommended fields.');
+            insights.push('Remember that career satisfaction comes from aligning your work with your natural interests and values.');
+
+            return insights;
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('results-content');
+
+            container.innerHTML = `
+                <h2>🎉 Your Complete Career Profile</h2>
+                <div style="text-align: center; margin: 1rem 0;">
+                    <span class="success-indicator">✅ Assessment Completed Successfully</span>
+                </div>
+
+                <!-- Personality Analysis -->
+                <div class="results-section">
+                    <h3>🧠 Personality Analysis</h3>
+                    <div class="personality-card">
+                        <h4 style="color: #2563eb; font-size: 1.3rem;">
+                            Holland Code: <span style="font-size: 2rem; font-weight: bold;">${results.holland_code}</span>
+                        </h4>
+                        <h4 style="color: #10b981; margin: 1rem 0;">${results.personality.name}</h4>
+                        <p style="font-size: 1.1rem; line-height: 1.6; margin: 1rem 0;">
+                            ${results.personality.description}
+                        </p>
+
+                        <div style="margin: 1.5rem 0;">
+                            <strong>Your Key Traits:</strong>
+                            <div style="margin-top: 0.5rem;">
+                                ${results.personality.traits.map(trait => 
+                                    `<span style="display: inline-block; background: #eff6ff; color: #2563eb; padding: 0.25rem 0.75rem; border-radius: 15px; margin: 0.25rem; font-weight: 500;">${trait}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+
+                        <div style="margin: 1.5rem 0;">
+                            <strong>Ideal Work Environment:</strong>
+                            <p style="margin-top: 0.5rem; font-style: italic;">${results.personality.work_environment}</p>
+                        </div>
+
+                        <div style="margin: 1.5rem 0;">
+                            <strong>Your RIASEC Scores:</strong>
+                            <div class="score-grid">
+                                ${Object.entries(results.riasec_scores).map(([type, score]) => `
+                                    <div class="score-item" style="border-color: ${score >= 70 ? '#10b981' : '#e5e7eb'};">
+                                        <strong style="color: ${score >= 70 ? '#10b981' : '#374151'};">${type}</strong><br>
+                                        <span style="font-size: 1.5rem; font-weight: bold; color: #2563eb;">${score}%</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Recommendations -->
+                <div class="results-section">
+                    <h3>🎓 Recommended Courses</h3>
+                    ${results.courses.map((course, i) => `
+                        <div class="course-item">
+                            <h4 style="color: #10b981; display: flex; justify-content: between; align-items: center;">
+                                <span>${i+1}. ${course.course}</span>
+                                <span style="background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem;">
+                                    ${course.match}% Match
+                                </span>
+                            </h4>
+                            <p><strong>Duration:</strong> ${course.duration}</p>
+                            <p><strong>Average Fees:</strong> ${course.fees}</p>
+                            <p><strong>Career Opportunities:</strong> ${course.careers}</p>
+                            <p><strong>Why this matches you:</strong> ${course.reason}</p>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- College Recommendations -->
+                <div class="results-section">
+                    <h3>🏛️ Recommended Colleges in J&K</h3>
+                    ${results.colleges.map(college => `
+                        <div class="college-item">
+                            <h4 style="color: #f59e0b;">${college.name}</h4>
+                            <p><strong>Course:</strong> ${college.course} | <strong>Type:</strong> ${college.type}</p>
+                            <p><strong>Annual Fee:</strong> ${college.fee} | <strong>Admission:</strong> ${college.admission}</p>
+                            <p><strong>Match Reason:</strong> ${college.match_reason}</p>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- Personalized Insights -->
+                <div class="results-section">
+                    <h3>💡 Personalized Career Insights</h3>
+                    ${results.insights.map(insight => `
+                        <div class="insight-item">
+                            <strong>•</strong> ${insight}
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- Action Items -->
+                <div class="results-section">
+                    <h3>🚀 Next Steps</h3>
+                    <div class="insight-item">
+                        <strong>1. Research Your Top Courses:</strong> Investigate admission requirements, curriculum, and career prospects for your recommended courses.
+                    </div>
+                    <div class="insight-item">
+                        <strong>2. Visit Recommended Colleges:</strong> Attend college fairs, visit campuses, and speak with current students and faculty.
+                    </div>
+                    <div class="insight-item">
+                        <strong>3. Gain Relevant Experience:</strong> Pursue internships, volunteer work, or projects related to your career interests.
+                    </div>
+                    <div class="insight-item">
+                        <strong>4. Seek Mentorship:</strong> Connect with professionals in your fields of interest for guidance and networking.
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="btn" onclick="window.print()" style="background: #10b981;">📄 Print Results</button>
+                    <button class="btn" onclick="saveResults()" style="background: #f59e0b;">💾 Save Report</button>
+                    <button class="btn" onclick="restartAssessment()" style="background: #6b7280;">🔄 Take Assessment Again</button>
+                </div>
+            `;
+        }
+
+        function saveResults() {
+            const studentName = studentInfo.name.replace(/\s+/g, '_');
+            const timestamp = new Date().toISOString().split('T')[0];
+            const filename = `Career_Assessment_${studentName}_${timestamp}.txt`;
+
+            const content = `
+CAREER ASSESSMENT RESULTS
+Student: ${studentInfo.name}
+Age: ${studentInfo.age}
+Academic Level: ${studentInfo.academic_level}
+Assessment Date: ${new Date().toLocaleDateString()}
+
+HOLLAND CODE: ${document.getElementById('results-content').innerText.match(/Holland Code: ([A-Z]{3})/)?.[1] || 'N/A'}
+
+This assessment was generated by the AI-Powered Career Guidance System.
+For complete results with formatting, please print or save the web page.
+            `;
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            alert('Assessment results saved to your downloads folder!');
+        }
+
+        function restartAssessment() {
+            if (confirm('Are you sure you want to start a new assessment? Your current results will be lost.')) {
+                assessmentData = {};
+                studentInfo = {};
+                document.getElementById('student-name').value = '';
+                document.getElementById('student-age').value = '';
+                document.getElementById('academic-level').value = '12-current';
+                document.getElementById('assessment-progress').style.width = '0%';
+                document.getElementById('progress-text').textContent = 'Question 0 of 30';
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('submit-btn').style.background = '';
+                document.getElementById('submit-btn').innerHTML = '📊 Calculate My Career Profile';
+                showSection('start-section');
+            }
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Career Assessment System Loaded - Offline Mode');
+        });
+    </script>
+</body>
+</html>

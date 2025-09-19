@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Career Guidance System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <!--<i class="fas fa-graduation-cap"></i>-->
+                    <span>Saakshar</span>
+                </div>
+                <div class="status-indicator">
+                    <span class="status status--success">
+                        PATHWAY TO SUCCESS
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="navigation">
+        <div class="container">
+            <ul class="nav-list">
+                <li><button class="nav-btn active" data-section="home"><i class="fas fa-home"></i> Home</button></li>
+                <li><button class="nav-btn" data-section="assessment"><i class="fas fa-clipboard-list"></i> Assessment</button></li>
+                <li><button class="nav-btn" data-section="colleges"><i class="fas fa-university"></i> Colleges</button></li>
+                <li><button class="nav-btn" data-section="about"><i class="fas fa-info-circle"></i> About</button></li>
+                <li><button class="nav-btn" data-section="results"><i class="fas fa-chart-bar"></i> Results</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="container">
+                <div class="welcome-banner">
+                    <h1>Welcome to Your Career Journey</h1>
+                    <p>Discover your personality type and find the perfect career path with our AI-powered RIASEC assessment</p>
+                </div>
+                
+                <div class="action-cards">
+                    <div class="card action-card" data-action="take-assessment">
+                        <div class="card__body">
+                            <i class="fas fa-play-circle card-icon"></i>
+                            <h3>Take Assessment</h3>
+                            <p>Complete our 30-question RIASEC personality assessment to discover your career interests</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card action-card" data-action="browse-colleges">
+                        <div class="card__body">
+                            <i class="fas fa-university card-icon"></i>
+                            <h3>Browse Colleges</h3>
+                            <p>Explore 155+ colleges and universities in Jammu & Kashmir with detailed information</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card action-card" data-action="learn-riasec">
+                        <div class="card__body">
+                            <i class="fas fa-book-open card-icon"></i>
+                            <h3>Learn About RIASEC</h3>
+                            <p>Understand the scientific methodology behind personality-based career guidance</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card action-card" data-action="sample-results">
+                        <div class="card__body">
+                            <i class="fas fa-chart-pie card-icon"></i>
+                            <h3>Sample Results</h3>
+                            <p>View example assessment results to see how career recommendations are generated</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Assessment Section -->
+        <section id="assessment" class="section">
+            <div class="container">
+                <div class="assessment-header">
+                    <h2>RIASEC Career Assessment</h2>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <span class="progress-text" id="progressText">0/30</span>
+                    </div>
+                </div>
+
+                <div class="assessment-start" id="assessmentStart">
+                    <div class="card">
+                        <div class="card__body">
+                            <h3>Ready to Begin?</h3>
+                            <p>Enter your name to start the assessment. You'll answer 30 questions rating your interest in different activities from 1 (not interested) to 5 (very interested).</p>
+                            <div class="form-group">
+                                <label class="form-label" for="userName">Your Name</label>
+                                <input type="text" class="form-control" id="userName" placeholder="Enter your full name">
+                            </div>
+                            <button class="btn btn--primary" id="startAssessment">Start Assessment</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="assessment-questions hidden" id="assessmentQuestions">
+                    <div class="card">
+                        <div class="card__body">
+                            <div class="question-counter" id="questionCounter">Question 1 of 30</div>
+                            <div class="question-text" id="questionText"></div>
+                            
+                            <div class="rating-scale">
+                                <div class="rating-labels">
+                                    <span>Not Interested</span>
+                                    <span>Very Interested</span>
+                                </div>
+                                <div class="rating-buttons">
+                                    <button class="rating-btn" data-rating="1">1</button>
+                                    <button class="rating-btn" data-rating="2">2</button>
+                                    <button class="rating-btn" data-rating="3">3</button>
+                                    <button class="rating-btn" data-rating="4">4</button>
+                                    <button class="rating-btn" data-rating="5">5</button>
+                                </div>
+                            </div>
+                            
+                            <div class="question-navigation">
+                                <button class="btn btn--secondary" id="prevQuestion" disabled>Previous</button>
+                                <button class="btn btn--primary" id="nextQuestion" disabled>Next</button>
+                                <button class="btn btn--primary hidden" id="finishAssessment">Finish Assessment</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Colleges Section -->
+        <section id="colleges" class="section">
+            <div class="container">
+                <h2>Colleges in Jammu & Kashmir</h2>
+                <div class="colleges-filter">
+                    <select class="form-control" id="collegeFilter">
+                        <option value="all">All Colleges</option>
+                        <option value="University">Universities</option>
+                        <option value="Technical">Technical Institutes</option>
+                        <option value="Medical">Medical Colleges</option>
+                    </select>
+                </div>
+                <div class="colleges-grid" id="collegesGrid">
+                    <!-- Colleges will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section">
+            <div class="container">
+                <h2>About RIASEC Theory</h2>
+                <div class="about-content">
+                    <div class="card">
+                        <div class="card__body">
+                            <h3>What is RIASEC?</h3>
+                            <p>The RIASEC model was developed by psychologist John L. Holland and is one of the most widely used career assessment tools. It categorizes people into six personality types based on their interests and preferences:</p>
+                            
+                            <div class="riasec-types">
+                                <div class="riasec-type">
+                                    <div class="type-header">
+                                        <div class="type-indicator" style="background-color: #ef4444;">R</div>
+                                        <h4>Realistic</h4>
+                                    </div>
+                                    <p>People who like to work with their hands, tools, and machines. They prefer practical, hands-on activities.</p>
+                                </div>
+                                
+                                <div class="riasec-type">
+                                    <div class="type-header">
+                                        <div class="type-indicator" style="background-color: #3b82f6;">I</div>
+                                        <h4>Investigative</h4>
+                                    </div>
+                                    <p>People who enjoy research, analysis, and solving complex problems. They like to think and observe.</p>
+                                </div>
+                                
+                                <div class="riasec-type">
+                                    <div class="type-header">
+                                        <div class="type-indicator" style="background-color: #8b5cf6;">A</div>
+                                        <h4>Artistic</h4>
+                                    </div>
+                                    <p>People who enjoy creative expression and original thinking. They value aesthetics and creativity.</p>
+                                </div>
+                                
+                                <div class="riasec-type">
+                                    <div class="type-header">
+                                        <div class="type-indicator" style="background-color: #10b981;">S</div>
+                                        <h4>Social</h4>
+                                    </div>
+                                    <p>People who enjoy helping, teaching, and working with others. They prefer cooperative environments.</p>
+                                </div>
+                                
+                                <div class="riasec-type">
+                                    <div class="type-header">
+                                        <div class="type-indicator" style="background-color: #f59e0b;">E</div>
+                                        <h4>Enterprising</h4>
+                                    </div>
+                                    <p>People who enjoy leadership, business, and persuading others. They like to take risks and make decisions.</p>
+                                </div>
+                                
+                                <div class="riasec-type">
+                                    <div class="type-header">
+                                        <div class="type-indicator" style="background-color: #6b7280;">C</div>
+                                        <h4>Conventional</h4>
+                                    </div>
+                                    <p>People who prefer organized, structured work with clear procedures and attention to detail.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results" class="section">
+            <div class="container">
+                <div class="results-header">
+                    <h2>Assessment Results</h2>
+                    <div class="results-actions">
+                        <button class="btn btn--secondary" id="exportResults">
+                            <i class="fas fa-download"></i> Export Results
+                        </button>
+                        <button class="btn btn--primary" id="retakeAssessment">
+                            <i class="fas fa-redo"></i> Retake Assessment
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="results-placeholder" id="resultsPlaceholder">
+                    <div class="card">
+                        <div class="card__body">
+                            <i class="fas fa-chart-bar results-icon"></i>
+                            <h3>No Results Yet</h3>
+                            <p>Complete the assessment to see your personality profile and career recommendations.</p>
+                            <button class="btn btn--primary" data-action="take-assessment">Take Assessment Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-content hidden" id="resultsContent">
+                    <div class="results-grid">
+                        <div class="card">
+                            <div class="card__body">
+                                <h3>Your Personality Profile</h3>
+                                <div class="chart-container" style="position: relative; height: 300px;">
+                                    <canvas id="personalityChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card__body">
+                                <h3>Top Personality Types</h3>
+                                <div id="topTypes"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card__body">
+                                <h3>Recommended Careers</h3>
+                                <div id="recommendedCareers"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card__body">
+                                <h3>Matching Colleges</h3>
+                                <div id="matchingColleges"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
